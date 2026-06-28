@@ -1,102 +1,58 @@
-from sklearn.preprocessing import LabelEncoder
-import numpy as np
-import plotly.express as px
-import seaborn as sns
 import pandas as pd
-import matplotlib.pyplot as plt
 
-df = pd.read_csv("dataset_raw/EnergyProductionDataset.csv")
+df = pd.read_csv("dataset_raw/GlobalDataOnSustainableEnergy.csv")
 
-#df = df.dropna()
-#print(df.info)
+#print(df.info())
 
-#print(df["Production"].describe())
-#df.describe()
+c = df.columns.tolist()
 
-estatisticas = pd.DataFrame({
-    "media": df.mean(numeric_only=True),
-    "mediana": df.median(numeric_only=True),
-    "desvio": df.std(numeric_only=True),
-    "min": df.min(numeric_only=True),
-    "max": df.max(numeric_only=True)
-})
-print(df["Production"].median(numeric_only=True),)
+# Elimina variaveis que estejam nulas em mais de 25% das linhas do dataset
+for coluna in df.columns:
+    if df[coluna].isnull().mean() > 0.25:
+        c.remove(coluna)
 
-plt.hist(df["Production"], bins=30)
-plt.title("Distribuição da Produção")
-plt.xlabel("Produção")
-plt.ylabel("Frequência")
-plt.savefig("graficos/Histograma.png")
-#plt.show()
-plt.clf()
-plt.close('all')
+df_copy = df[c].copy()
 
-sns.boxplot(x=df["Production"])
-plt.savefig("graficos/Outliers.png")
-plt.clf()
-plt.close('all')
+# Elimina os restantes NaN das linhas do dataset
+for coluna in df_copy.columns:
+    if df_copy[coluna].isnull().sum() == 0:
+        continue
 
-fig = px.scatter_3d(
-    df,
-    x="Day_of_Year",
-    y="Season",
-    z="Production",
-    color="Source"
+    if df_copy[coluna].dtype == "object":
+        moda = df_copy[coluna].mode()[0]
+        df_copy[coluna] = df_copy[coluna].fillna(moda)
+    
+    else:
+        mediana = df_copy[coluna].median() 
+        df_copy[coluna] = df_copy[coluna].fillna(mediana)
+
+df_copy.columns = (
+    df_copy.columns
+        .str.replace(" ", "_")
+        .str.replace("/", "-", regex=False)
 )
 
-fig.write_html(
-    "graficos/producao_interativa.html"
-)
+for col in df_copy.select_dtypes(include="number").columns:
+
+    Q1 = df_copy[col].quantile(0.25)
+    Q3 = df_copy[col].quantile(0.75)
+
+    IQR = Q3 - Q1
+
+    limite_inferior = Q1 - 1.5*IQR
+    limite_superior = Q3 + 1.5*IQR
+
+    quantidade = (
+        (df_copy[col] < limite_inferior) |
+        (df_copy[col] > limite_superior)
+    ).sum()
+
+    df_copy[col] = df_copy[col].clip(
+        lower=limite_inferior,
+        upper=limite_superior
+    )
+
+    print("Limitante inferior: " + str(limite_inferior) + " | Limitante Superior: " + str(limite_superior) + " -> " + col, str(quantidade))
 
 
-print(df.groupby(["Source", "Season"])["Production"].mean())
-
-ax = sns.barplot(
-    data=df,
-    x="Season",
-    y="Production",
-    hue="Source"
-)
-
-for container in ax.containers:
-    ax.bar_label(container, fmt="%.0f")
-
-print(ax.get_yticks())
-plt.xlabel("Estações")
-plt.ylabel("Produção/MWh")
-plt.savefig("graficos/Season+Source-Production.png")
-plt.clf()
-plt.close('all')
-
-df_corr = df.copy()
-
-for col in ["Season","Month_Name","Day_Name","Source"]:
-    df_corr[col] = LabelEncoder().fit_transform(df_corr[col])
-
-corr = df_corr.corr(numeric_only=True)
-
-plt.figure(figsize=(10,8))
-
-sns.heatmap(
-    corr,
-    annot=True,
-    cmap="coolwarm"
-)
-
-plt.savefig("graficos/Correlacoes.png")
-plt.clf()
-plt.close('all')
-
-pivot = df.pivot_table(
-    values="Production",
-    index="Season",
-    columns="Source",
-    aggfunc="mean"
-)
-
-sns.heatmap(
-    pivot,
-    annot=True,
-    fmt=".0f"
-)
-plt.savefig("graficos/Heatmap.png")
+df_copy.to_csv("dataset_raw/GlobalDataOnSustainableEnergy_FirstClean.csv", index=False)
