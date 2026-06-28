@@ -1,8 +1,6 @@
 import pandas as pd
 
-df = pd.read_csv("dataset_raw/GlobalDataOnSustainableEnergy.csv")
-
-#print(df.info())
+df = pd.read_csv("datasets/GlobalDataOnSustainableEnergy_Raw.csv")
 
 c = df.columns.tolist()
 
@@ -32,27 +30,14 @@ df_copy.columns = (
         .str.replace("/", "-", regex=False)
 )
 
-for col in df_copy.select_dtypes(include="number").columns:
+for line in df_copy["Density-n(P-Km2)"]:
+    if "," in line: 
+        df_copy["Density-n(P-Km2)"] = df_copy["Density-n(P-Km2)"].replace(line, line.replace(",", ""))
+        
 
-    Q1 = df_copy[col].quantile(0.25)
-    Q3 = df_copy[col].quantile(0.75)
+df_copy["Density-n(P-Km2)"] = pd.to_numeric(
+     df_copy["Density-n(P-Km2)"],
+     errors="coerce"
+)
 
-    IQR = Q3 - Q1
-
-    limite_inferior = Q1 - 1.5*IQR
-    limite_superior = Q3 + 1.5*IQR
-
-    quantidade = (
-        (df_copy[col] < limite_inferior) |
-        (df_copy[col] > limite_superior)
-    ).sum()
-
-    df_copy[col] = df_copy[col].clip(
-        lower=limite_inferior,
-        upper=limite_superior
-    )
-
-    print("Limitante inferior: " + str(limite_inferior) + " | Limitante Superior: " + str(limite_superior) + " -> " + col, str(quantidade))
-
-
-df_copy.to_csv("dataset_raw/GlobalDataOnSustainableEnergy_FirstClean.csv", index=False)
+df_copy.to_csv("datasets/GlobalDataOnSustainableEnergy_FirstClean.csv", index=False)
