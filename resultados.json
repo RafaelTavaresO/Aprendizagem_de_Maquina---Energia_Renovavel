@@ -1,0 +1,152 @@
+{
+    "Caso": {
+        "Caso 1": {
+            "Descricao": "País com grande extensão territorial e participação moderada/alta de eletricidade proveniente de fontes de baixo carbono",
+            "Atributos": {
+                "Access_to_electricity_(%_of_population)": 30.052393,
+                "Access_to_clean_fuels_for_cooking": 15.5,
+                "Electricity_from_fossil_fuels_(TWh)": 2.2,
+                "Electricity_from_renewables_(TWh)": 1.26,
+                "Electricity_from_nuclear_(TWh)": 0.0,
+                "Low-carbon_electricity_(%_electricity)": 36.416183,
+                "Primary_energy_consumption_per_capita_(kWh-person)": 1560.1315,
+                "Energy_intensity_level_of_primary_energy_(MJ-$2017_PPP_GDP)": 6.86,
+                "Value_co2_emissions_kt_by_country": 8829.999924,
+                "gdp_per_capita": 711.9219842,
+                "Density-n(P-Km2)": 25.0,
+                "Land_Area(Km2)": 1861484.0
+            }
+        },
+        "Caso 2": {
+            "Descricao": "País com baixa densidade populacional, emissões de CO₂ moderadas/altas e consumo de energia per capita acima da mediana",
+            "Atributos": {
+                "Access_to_electricity_(%_of_population)": 93.69444,
+                "Access_to_clean_fuels_for_cooking": 83.15,
+                "Electricity_from_fossil_fuels_(TWh)": 17.81,
+                "Electricity_from_renewables_(TWh)": 0.0,
+                "Electricity_from_nuclear_(TWh)": 0.0,
+                "Low-carbon_electricity_(%_electricity)": 0.0,
+                "Primary_energy_consumption_per_capita_(kWh-person)": 39334.31,
+                "Energy_intensity_level_of_primary_energy_(MJ-$2017_PPP_GDP)": 7.23,
+                "Value_co2_emissions_kt_by_country": 48919.99817,
+                "gdp_per_capita": 4673.145576,
+                "Density-n(P-Km2)": 4.0,
+                "Land_Area(Km2)": 1759540.0
+            }
+        }
+    },
+    "Modelos": [
+        {
+            "Modelo": "Árvore de Decisão",
+            "RMSE": "6.08±0.66",
+            "MAE": "2.42±0.23",
+            "R2": "0.96±0.01",
+            "Tempo GRID (s)": "9.15",
+            "Tempo Cross Validation (s)": "0.17",
+            "Tempo Total (s)": "9.32",
+            "Parametros": {
+                "max_depth": 20,
+                "min_samples_leaf": 1,
+                "min_samples_split": 2
+            },
+            "Casos de Uso": [
+                {
+                    "Nome": "Caso 1",
+                    "Resultado": {
+                        "Modelo": "Arvore de decisao",
+                        "Predicao": "63.99",
+                        "Valor_Real": "75.40",
+                        "Erro": "11.41",
+                        "Erro Percentual (%)": "15.13%"
+                    }
+                },
+                {
+                    "Nome": "Caso 2",
+                    "Resultado": {
+                        "Modelo": "Arvore de decisao",
+                        "Predicao": "2.73",
+                        "Valor_Real": "2.85",
+                        "Erro": "0.12",
+                        "Erro Percentual (%)": "4.21%"
+                    }
+                }
+            ]
+        },
+        {
+            "Modelo": "kNN",
+            "RMSE": "5.77±0.39",
+            "MAE": "2.32±0.13",
+            "R2": "0.96±0.01",
+            "Tempo GRID (s)": "0.75",
+            "Tempo Cross Validation (s)": "0.07",
+            "Tempo Total (s)": "0.83",
+            "Parametros": {
+                "metric": "manhattan",
+                "n_neighbors": 5,
+                "weights": "distance"
+            },
+            "Casos de Uso": [
+                {
+                    "Nome": "Caso 1",
+                    "Resultado": {
+                        "Modelo": "kNN",
+                        "Predicao": "72.82",
+                        "Valor_Real": "75.40",
+                        "Erro": "2.58",
+                        "Erro Percentual (%)": "3.42%"
+                    }
+                },
+                {
+                    "Nome": "Caso 2",
+                    "Resultado": {
+                        "Modelo": "kNN",
+                        "Predicao": "2.66",
+                        "Valor_Real": "2.85",
+                        "Erro": "0.19",
+                        "Erro Percentual (%)": "6.67%"
+                    }
+                }
+            ]
+        },
+        {
+            "Modelo": "MLP",
+            "RMSE": "6.29±0.41",
+            "MAE": "3.49±0.13",
+            "R2": "0.95±0.01",
+            "Tempo GRID (s)": "102.87",
+            "Tempo Cross Validation (s)": "67.27",
+            "Tempo Total (s)": "170.14",
+            "Parametros": {
+                "activation": "tanh",
+                "hidden_layer_sizes": [
+                    100,
+                    50
+                ],
+                "learning_rate": "constant",
+                "max_iter": 7000
+            },
+            "Casos de Uso": [
+                {
+                    "Nome": "Caso 1",
+                    "Resultado": {
+                        "Modelo": "MLP",
+                        "Predicao": "72.44",
+                        "Valor_Real": "75.40",
+                        "Erro": "2.96",
+                        "Erro Percentual (%)": "3.93%"
+                    }
+                },
+                {
+                    "Nome": "Caso 2",
+                    "Resultado": {
+                        "Modelo": "MLP",
+                        "Predicao": "4.47",
+                        "Valor_Real": "2.85",
+                        "Erro": "1.62",
+                        "Erro Percentual (%)": "57.01%"
+                    }
+                }
+            ]
+        }
+    ]
+}
